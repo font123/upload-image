@@ -1,78 +1,170 @@
 <template>
-	<div class="hello">
-		<div id="imgArea">
-			<img :src="upstyle" class="upstyle" @click="bigImage"/>
-			<input type="file" name="url" id="uppic" accept="image/gif,image/jpeg,image/jpg,image/png" @change="changeImage($event)" ref="urlInput" class="uppic">	
-		</div>		
-		<div class="tips" v-if="flag">上传成功</div>	
+	<div class="hello ">
+		<div id="imgArea" class = "col-md-offset-4 col-lg-offset-4col-xl-offset-4">
+			<form id="fileForm" enctype="multipart/form-data" class="form-horizontal " >
+			  <div class="col-6" style="margin:10px 25%;padding: 0">
+			     <input type="file" name="url" id="uppic" accept="image/gif,image/jpeg,image/jpg,image/png" @change="changeImage($event)" ref="urlInput" class="uppic">	
+			    </div>
+			</form>		
+			<div class="col-6" >
+			    <img :src="upstyle" class="img-rounded upstyle" @click="bigImage(this.src, this.width, this.height);" data-target="#myModal" data-toggle="modal">
+			</div>		 
+			<div class="col-6">
+			<div class="progress">
+			  <div id="progressactive" class="progress-bar progress-bar-striped active"  role="progressbar" style="width: 0%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">0%</div>
+			</div>
+			</div>
+			<!-- 模态框（Modal） -->
+			<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			    <div class="modal-dialog">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						  <span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+			        <div class="modal-body" align="center">
+						<div class="show-image">
+							<img :src="upstyle" id="image ":style="{transform:'scale('+multiples+')'}">
+						</div>
+						<div class="look-image-footer">
+						    <div class="enlargement" @click="magnify">
+						        <span><img src="../assets/big.png"></span>
+						    </div>
+						    <div class="shrink" @click="shrink">
+						        <span><img src="../assets/small.png"></span>
+						    </div>
+						</div>
+			        </div>
+			    </div>	
+			</div>
+		</div>
 	</div>	
 </template>
-
-<script>
-	
+ 
+<script>	
 	export default {
 	 name: 'hello',
 	 data() {
 	  return {
 	  upstyle: require('../assets/up.png'),
-	  flag:false,
-	  progress: '',
-	  showp: true
+	  showp: true,
+	  multiples: 1,       // 放大或者缩小
 	  }
 	 },
 	 methods:{
 		   changeImage(e) {
-		   var flag = this.flag
 		   var file = e.target.files[0]
 		   var reader = new FileReader()
 		   var that = this
 		   reader.readAsDataURL(file)
 		   reader.onload = function(e) {
 		    that.upstyle = this.result
-			flag = true
-			setTimeout( ()=>{
-				flag = false
-			},1000)
-		   }					
+		   }
+		let img1 = event.target.files[0];
+		let form = new FormData();
+		var baseUrl="/upimg";
+		var progressBar = document.getElementById("progressactive");//获取进度条对象
+		      form.append('file',img1);
+		      this.$axios.post(baseUrl,form,{
+		        headers:{'Content-Type':'multipart/form-data'},
+		        withCredentials:true,
+		        onUploadProgress: progressEvent => {
+					var complete = (progressEvent.loaded / progressEvent.total * 100 | 0)+"%"
+					progressBar.style.width = complete;
+					progressBar.innerHTML = complete;				  
+		        }
+						  
+		      }).then(response => {  
+		        let url = response.data.data.file_url;//上传成功的返回url
+		        if (key === 0) {
+		          this.upstyle = url;
+		        } 
+		     	console.log('上传成功')
+		      }).catch(error => {  
+		        console.log('失败',error)
+		      })
 		},
-		  bigImage(){
-			  var box=document.getElementById('imgArea');
-			  var  newDiv=document.createElement('div');
-			  	 newDiv.className='mark';
-			  	 box.appendChild(newDiv);
-			  var  newImg=document.createElement('img');
-			  	 newImg.className='pic';
-			  	 newImg.src=this.upstyle;
-			  	 box.appendChild(newImg);
-			  var newSpan=document.createElement("span");
-			  	newSpan.innerHTML='X';
-			  	box.appendChild(newSpan);
-							  
-			  	newSpan.onclick=function(){
-			  		box.removeChild(newDiv);
-			  		box.removeChild(newSpan);
-			  		box.removeChild(newImg);
-			  	}
-		  }
-	 }
+		   //查看大图
+		  bigImage(src, width, height){
+				$('#myModal').on('show.bs.modal', function () {
+					var modal = $(this);
+					modal.find('.modal-dialog').css({'margin-left':(document.body.clientWidth - width*1.5)/2 + 'px'})
+					modal.find('.modal-body #image').attr("src", src)
+						.attr("width", width*1.5)
+						.attr("height", height*1.5);
+					});
+			},
+			
+			 // 放大
+			magnify() {
+				if(this.multiples >= 10){
+					return
+				}
+				this.multiples += 0.25;		
+			},
+			// 缩小
+			shrink() {
+				if(this.multiples <= 0){
+					return
+				}
+				this.multiples -= 0.25;	
+			},
+		  
+		}
 	 }
 </script>
 
 <style>
-	.uppic {   
-	   margin: 0 auto;	   
+	#imgArea{
+		text-align: center;
+		width: 400px;
+		height: 200px;
+		border-style:solid;
+		border-color:#A0A1A7;
 	}
-	 .upstyle {
-	   position: absolute;
-	   margin-top: 40px;
+	.upstyle {   
 	   width: 100px;
 	   height: 100px;
 	   border-style:solid;
 	   border-color:#A0A1A7;
 	}
-	img{width:100%;height:100%;}
-	.mark{width:600px;height:400px; background:#000;opacity: 0.5;margin-left: 300px;}
-	 /*修改pic的宽高,可调整图片大小*/
-	.pic{width:400px;height:380px; position: absolute;left:400px;top:120px;}
-	span{position: absolute;width:20px;height:20px;left:800px;top:120px; background: #fff;text-align: center;}
+	img{
+		width:100%;
+		height:100%;
+	}
+	.progress{
+		margin-top: 10px;
+	}
+	.show-image{
+		overflow: hidden;
+	}
+	.look-image-footer img{
+		width: 32px;
+		height: 32px;	
+	}
+	.look-image-footer {
+		 display: flex;
+		 height: 110px;
+		 line-height: 110px;
+		 >div {
+			 width: 25%;
+			 position: relative;
+			 &::after {
+				 content: "";
+				 position: absolute;
+				 top: 0;
+				 right: 0;
+				 width: 1px;
+				 height: 100%;
+				 background-color: #c5c5c5;
+			 }
+			 &:last-child {
+				 &::after {
+					 display: none;
+				 }
+			 }
+		 }
+	}
+	     
+	    
 </style>
