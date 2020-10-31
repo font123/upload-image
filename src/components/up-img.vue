@@ -3,7 +3,7 @@
 		<div id="imgArea" class = "col-md-offset-4 col-lg-offset-4col-xl-offset-4">
 			<form id="fileForm" enctype="multipart/form-data" class="form-horizontal " >
 			  <div class="col-6" style="margin:10px 25%;padding: 0">
-			     <input type="file" name="url" id="uppic" accept="image/gif,image/jpeg,image/jpg,image/png" @change="changeImage($event)" ref="urlInput" class="uppic">	
+			     <input type="file" name="url" id="uppic" multiple="multiple" accept="image/gif,image/jpeg,image/jpg,image/png" @change="changeImage($event)" ref="urlInput" class="uppic">	
 			    </div>
 			</form>		
 			<div class="col-6" >
@@ -26,6 +26,7 @@
 						<div class="show-image">
 							<img :src="upstyle" id="image ":style="{transform:'scale('+multiples+')'}">
 						</div>
+						
 						<div class="look-image-footer">
 						    <div class="enlargement" @click="magnify">
 						        <span><img src="../assets/big.png"></span>
@@ -35,6 +36,7 @@
 						    </div>
 						</div>
 			        </div>
+					
 			    </div>	
 			</div>
 		</div>
@@ -53,7 +55,9 @@
 	 },
 	 methods:{
 		   changeImage(e) {
-		   var file = e.target.files[0]
+			for(var i=0;i<e.target.files.length;i++) {  //循环获取上传个文件
+				 var file = e.target.files[i]
+			}
 		   var reader = new FileReader()
 		   var that = this
 		   reader.readAsDataURL(file)
@@ -165,6 +169,6 @@
 			 }
 		 }
 	}
-	     
+	 
 	    
 </style>
