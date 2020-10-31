@@ -1,7 +1,7 @@
 <template>
 	<div id="app">
 		<div id="nav">
-		    <router-link to="/">上传图片</router-link>
+		    <router-link to="/upimg">上传图片</router-link>
 		  </div>
 		  <router-view/>		
 	</div>

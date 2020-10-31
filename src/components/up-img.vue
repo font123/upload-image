@@ -3,11 +3,11 @@
 		<div id="imgArea" class = "col-md-offset-4 col-lg-offset-4col-xl-offset-4">
 			<form id="fileForm" enctype="multipart/form-data" class="form-horizontal " >
 			  <div class="col-6" style="margin:10px 25%;padding: 0">
-			     <input type="file" name="url" id="uppic" multiple="multiple" accept="image/gif,image/jpeg,image/jpg,image/png" @change="changeImage($event)" ref="urlInput" class="uppic">	
+			     <input type="file" name="url" id="uppic" multiple="multiple" accept="image/gif,image/jpeg,image/jpg,image/png" @change="changeImage($event,0)" ref="urlInput" class="uppic">	
 			    </div>
 			</form>		
 			<div class="col-6" >
-			    <img :src="upstyle" class="img-rounded upstyle" @click="bigImage(this.src, this.width, this.height);" data-target="#myModal" data-toggle="modal">
+			    <img :src="upStyle" class="img-rounded upstyle" @click="bigImage(this.src, this.width, this.height);" data-target="#myModal" data-toggle="modal">
 			</div>		 
 			<div class="col-6">
 			<div class="progress">
@@ -24,7 +24,7 @@
 					</div>
 			        <div class="modal-body" align="center">
 						<div class="show-image">
-							<img :src="upstyle" id="image ":style="{transform:'scale('+multiples+')'}">
+							<img :src="upStyle" id="image ":style="{transform:'scale('+mulTiples+')'}">
 						</div>
 						
 						<div class="look-image-footer">
@@ -48,52 +48,51 @@
 	 name: 'hello',
 	 data() {
 	  return {
-	  upstyle: require('../assets/up.png'),
-	  showp: true,
-	  multiples: 1,       // 放大或者缩小
+	  upStyle: require('../assets/up.png'),
+	  mulTiples: 1,       // 放大或者缩小
 	  }
 	 },
 	 methods:{
-		   changeImage(e) {
+		   changeImage(e,key) {
 			for(var i=0;i<e.target.files.length;i++) {  //循环获取上传个文件
-				 var file = e.target.files[i]
+				 var upFile = e.target.files[i]
 			}
-		   var reader = new FileReader()
+		   var fileReader = new FileReader()
 		   var that = this
-		   reader.readAsDataURL(file)
-		   reader.onload = function(e) {
-		    that.upstyle = this.result
+		   fileReader.readAsDataURL(upFile)
+		   fileReader.onload = function(e) {
+		    that.upStyle = this.result
 		   }
-		let img1 = event.target.files[0];
-		let form = new FormData();
-		var baseUrl="/upimg";
+		let upImg = event.target.files[0];
+		let formData = new FormData();
+		var baseUrl = '/upimg'
 		var progressBar = document.getElementById("progressactive");//获取进度条对象
-		      form.append('file',img1);
-		      this.$axios.post(baseUrl,form,{
+		      formData.append('file',upImg);
+		      this.$axios.post(baseUrl,formData,{
 		        headers:{'Content-Type':'multipart/form-data'},
 		        withCredentials:true,
 		        onUploadProgress: progressEvent => {
-					var complete = (progressEvent.loaded / progressEvent.total * 100 | 0)+"%"
-					progressBar.style.width = complete;
-					progressBar.innerHTML = complete;				  
+					var completePr = (progressEvent.loaded / progressEvent.total * 100 | 0)+"%"
+					progressBar.style.width = completePr;
+					progressBar.innerHTML = completePr;				  
 		        }
 						  
 		      }).then(response => {  
 		        let url = response.data.data.file_url;//上传成功的返回url
 		        if (key === 0) {
-		          this.upstyle = url;
+		          this.upStyle = url;
 		        } 
 		     	console.log('上传成功')
 		      }).catch(error => {  
-		        console.log('失败',error)
+		        console.log('上传失败',error)
 		      })
 		},
 		   //查看大图
 		  bigImage(src, width, height){
 				$('#myModal').on('show.bs.modal', function () {
-					var modal = $(this);
-					modal.find('.modal-dialog').css({'margin-left':(document.body.clientWidth - width*1.5)/2 + 'px'})
-					modal.find('.modal-body #image').attr("src", src)
+					var myModal = $(this);
+					myModal.find('.modal-dialog').css({'margin-left':(document.body.clientWidth - width*1.5)/2 + 'px'})
+					myModal.find('.modal-body #image').attr("src", src)
 						.attr("width", width*1.5)
 						.attr("height", height*1.5);
 					});
@@ -101,18 +100,18 @@
 			
 			 // 放大
 			magnify() {
-				if(this.multiples >= 10){
+				if(this.mulTiples >= 10){
 					return
 				}
-				this.multiples += 0.25;		
+				this.mulTiples += 0.25;		
 			},
 			// 缩小
 			shrink() {
-				if(this.multiples <= 0){
+				if(this.mulTiples <= 0){
 					return
 				}
-				this.multiples -= 0.25;	
-			},
+				this.mulTiples -= 0.25;	
+			}
 		  
 		}
 	 }
@@ -169,6 +168,5 @@
 			 }
 		 }
 	}
-	 
-	    
+	 	    
 </style>
